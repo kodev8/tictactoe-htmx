@@ -1,0 +1,17 @@
+{% from 'components/tictactoe.html' import board, indicator %}
+
+{{ board(playable=true) }}
+
+{% if not forfeit %}
+    <div id="btn-container" hx-swap-oob=outerHTML" class=""></div>
+    {% if mode == "1P" and comp_turn %}
+        <span hx-post="/move" hx-trigger="load"></span>
+    {% endif %}
+{% else %}
+    <span id="home_score" hx-swap-oob="outerHTML">{{ scores_context.get('home')}}</span>
+    <span id="away_score" hx-swap-oob="outerHTML">{{ scores_context.get('away') }}</span>
+{% endif %}
+
+<h1 id="game-desc" class="loading text-yellow-500" hx-swap-oob="true"> Game Time</h1>
+
+{{ indicator(comp_turn) }}

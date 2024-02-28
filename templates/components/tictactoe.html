@@ -1,0 +1,201 @@
+<!-- CUSTOM BUTTON -->
+{% macro customButton(
+  text,
+  id=none,
+  color='bg-blue-500',
+  hoverColor='bg-blue-900', 
+  icon=none, 
+  icon_svg=none, 
+  icon_right=none,
+  classes="text-white", 
+  as_submit=true,
+  disabled=false
+   ) 
+-%}
+
+<button
+{% if not as_submit -%} type="button" {%- endif %} 
+{% if disabled -%} disabled {%- endif %} 
+{% if id -%} id="{{id}}" {%- endif %} 
+class="relative w-full px-4 col-span-full  py-2 flex items-center justify-center rounded-xl {{color}} {{ classes }} hover:{{hoverColor}} transition-colors"
+>
+  {% if icon -%}
+  <i class="{{icon}} mr-4"></i>
+  {% elif icon_svg -%}
+  <span class="absolute left-2">
+    {% set svg_file =  'components/svgs/' + icon_svg + '.svg' %}
+    {% include svg_file %}
+  </span>
+  {%- endif %}
+  <span class="font-medium">{{text}}</span>
+  {% if icon_right -%}
+  <i class="{{icon_right}} ml-4"></i>
+  {%- endif %}
+</button>
+
+{%- endmacro %}
+
+{% macro separator(colspan=none) %}
+<div class="
+col-span-{% if not colspan%}full{%else%}{{colspan}}{%endif%}
+border-t border-gray-400 border-solid my-2"></div>
+
+{% endmacro %}
+
+{% macro spacedText(text, color="slate",bg_color="white", size='xs') %}
+
+<div class="w-full relative  border-b-2 border-b-solid border-b-{{color}}-200 my-6">
+  <span class="bg-{{bg_color}} px-4 text-{{size}} text-{{color}}-400 absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]"> {{text}} </span>
+</div>
+  
+{% endmacro %}
+
+{% macro title(text) %}
+  <title> Tic Tac Toe {% if text %} - {{ text }} {% endif %}</title>
+{% endmacro %}
+
+<!-- ============================== TicTacToe  SPEC ============================================================-->
+{% macro board(board_color="bg-white", as_code=none, playable=false) %}
+  
+  <div id="board" 
+  hx-ext="class-tools" 
+  class="relative grid grid-cols-3 gap-x-4 font-bold rounded-sm overflow-hidden text-lg text-lime-200 {% if playable %} sm:scale-125 transitin-transform ease-in-out {% endif %}">
+
+
+   
+
+    <!-- top row -->
+    {% for i in range(0, 3)  %}
+      {{ boardCell(playable=playable, cell=i ) }}
+    {% endfor %}
+    
+    <div class="col-span-full w-full p-2 rounded-sm {{ board_color }}"></div>
+
+    
+    <!-- middle  -->
+    {% if as_code %}
+      {{ boardCell(text=as_code[0], playable=playable) }}
+      {{ boardCell(text=as_code[1], playable=playable) }}
+      {{ boardCell(text=as_code[2], playable=playable) }}
+        
+    {% else %}
+      {% for i in range(3, 6)  %}
+        {{ boardCell(playable=playable, cell=i ) }}
+      {% endfor %}
+    {% endif %}
+    
+
+    <div class="col-span-full w-full p-2 rounded-sm {{ board_color }}"></div>
+
+
+    <!-- bottom row -->
+    {% for i in range(6, 9)  %}
+      {{ boardCell(playable=playable, cell=i ) }}
+    {% endfor %}
+
+    <div class="absolute h-full p-2 rounded-sm {{ board_color }} left-10"></div>
+    <div class="absolute h-full p-2 rounded-sm {{ board_color }} right-10"></div>
+
+    {% if playable %}
+    <span id="" 
+    hx-post="{{ url_for('move') }}"
+    hx-trigger="compPlay from:body"
+    hx-swap="unset"
+    ></span>
+    {% endif %}
+  
+  </div>
+
+{% endmacro %}
+
+
+{% macro boardCell(text, playable, cell=none, swap_oob=none, as_user=none, text_classes=none, hx_classes=none) -%}
+  <div
+
+  {% if cell is not none %}
+    id="cell-{{cell}}"
+  {% endif %}
+  {% if swap_oob %}
+    hx-swap-oob="{{swap_oob}}"
+  {% endif %}
+  {% if playable %}
+    hx-post="{{ url_for('move') }}"
+    hx-include="find [name=move]"
+    hx-target="this"
+    hx-swap="outerHTML"
+  {% endif %}
+  {% if hx_classes %}
+    classes="{{hx_classes}}"
+  {% endif %}
+  class="w-10 h-10 flex items-center justify-center
+  {% if playable -%} hover:bg-lime-100 {%- endif %}">
+  <span class="{% if as_user %}text-green-500  {% endif %}">{{ text }}</span>
+  {% if playable %}
+    <input type="hidden" name="move" value="{{ cell }}">
+  {% endif %}
+
+</div>
+{%- endmacro %}
+
+{% macro modeTab(url1, url2, target, mode, tab_classes=none, container_classes=none, active_classes=none) %}
+
+<div class=" w-full flex {{ container_classes }}">
+            
+  <a href="{{ url1 }}" 
+  hx-push-url="false" hx-target="{{ target }}" hx-select="{{ target }}" hx-swap="outerHTML "
+  class="flex-1 text-center p-2 hover:bg-slate-200 rounded-t-md {% if mode == 'pve' %} {{ active_classes }} {% endif %} {{ tab_classes }}">PVE</a>
+  
+  <a href="{{ url2 }}" 
+  hx-push-url="false" hx-target="{{ target }}" hx-select="{{ target }}" hx-swap="outerHTML"
+  class="flex-1 text-center p-2 hover:bg-slate-200 rounded-t-md {% if mode == 'pvp' %} {{ active_classes }} {% endif %}  {{ tab_classes }}">PVP</a>
+</div>
+{% endmacro %}
+
+{% macro profilePhoto(user) %}
+
+<div class="w-full h-full flex items-center justify-center">
+  {# icon effectilvely useless since clicking on the modal closes it #}
+  <i class="fa-solid fa-xmark absolute top-6 right-6 text-md bg-slate-300 hover:bg-sky-400 text-slate-500 flex items-center justify-center rounded-full w-6 h-6 cursor-pointer"></i>
+  <img
+    class="rounded-[50%] h-[300px] w-[300px] object-cover place-self-center flex items-center justify-center hover:brightness-[80%] transition-[filter] ease duration-300"
+    src="{{ url_for('upload', filename=user.build_path('profile', 'profile.png')) }}"
+    alt=""
+  />
+</div>
+{% endmacro %}
+
+{% macro indicator(as_user) %}
+<i 
+id="indicator" 
+hx-swap-oob="outerHTML"
+class="fa-solid fa-play sm:rotate-[90deg]  text-red-500 absolute
+duration-[1s] ease-in-out 
+    top-4
+    sm:top-[100%]
+{% if as_user %}
+    top-[75%]
+    sm:left-[83%]
+{% else %}
+    sm:left-[16%]
+{% endif %}
+
+"></i>
+{% endmacro %}
+
+
+{% macro animatePoints(type, points, animated=none) %}
+
+<span 
+
+id="{{ type }}-score-leaderboard" 
+{% if animated %}
+  classes="add -translate-y-4  & remove opacity-0 & add opacity-100, 
+  remove opacity-100 & add opacity-0:1.5s, 
+  add translate-x-0:2.5s & add translate-y-0:2.5s"
+{% endif %}
+
+class="transition-all duration-500 opacity-0 absolute top-0 text-sm"
+hx-swap-oob="outerHTML">+{{ points }}</span>
+  
+{% endmacro %}
+

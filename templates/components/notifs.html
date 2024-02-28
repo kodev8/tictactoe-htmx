@@ -1,0 +1,80 @@
+{% macro notif(message, type, link) -%}
+    <div 
+        hx-ext="class-tools"
+        hx-get="/clear" hx-trigger="load delay:3.7s" hx-target="#messages" hx-swap="innerHTML" 
+        class="notif overflow-hidden max-h-0 noti-close" 
+        classes="remove noti-close & add noti-open:0.2s, remove noti-open:3s & add noti-close:3s" role="alert">
+        {% if type == 'error' -%}
+            {{ error(message, link) }}
+        {% elif type == 'success' %}
+            {{ success(message, link) }}
+        {% elif type == 'info' %}
+            {{ info(message, link) }}
+        {% elif type == 'warning' %}
+            {{ warning(message, link) }}
+        {%- endif %} 
+    </div>
+{%- endmacro %}
+
+{% macro oob_notif(message, type, link) %}
+    <message hx-swap-oob="innerHTML:#messages">
+       {{ notif(message, type, link) }}
+    </message>
+{% endmacro %}
+
+
+
+{% macro error(message, link) -%}
+
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative flex items-center justify-center" role="alert">
+        <span class="block sm:inline font-bold">{{ message }}</span>
+        {% if link %}
+            <a class="underline ml-2" href="{{link.url}}" hx-boost="false">{{link.text}}</a>
+        {% endif %}
+        <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+            <i onclick="closeNotif(this)" class="fa-solid fa-xmark h-6 w-6 text-red-500 cursor-pointer"></i>
+        </span>
+    </div>
+
+{%- endmacro %}
+
+{% macro success(message, link) -%}
+
+    <div onclick="closeNotif(this)" class="bg-teal-100 border-t-4 border-teal-500 rounded-b text-teal-900 px-4 py-4 shadow-md cursor-pointer" role="alert">
+        <div class="flex items-center justify-center">
+            <i class="fa-solid fa-circle-check text-teal-500 mr-4"></i>
+
+            <span class="text-sm font-bold">{{ message }}</span>
+            {% if link %}
+            <a class="underline ml-2" href="{{link.url}}" hx-boost="false">{{link.text}}</a>
+        {% endif %}
+        </div>
+    </div>
+
+{% endmacro %}
+
+{% macro info(message, link) -%}
+
+    <div onclick="closeNotif(this)" class="flex items-center justify-center bg-blue-500 text-white text-sm font-bold px-4 py-3 cursor-pointer" role="alert">
+        <i class="fa-solid fa-circle-info mr-4"></i>
+        <p>{{ message }}</p>
+        {% if link %}
+        <a class="underline ml-2" href="{{link.url}}" hx-boost="false">{{link.text}}</a>
+        {% endif %}
+    </div>
+
+{% endmacro %}
+
+{% macro warning(message, link) -%}
+
+    <div onclick="closeNotif(this)" class="flex items-center justify-center bg-yellow-100 text-yellow-500 text-sm font-bold px-4 py-3 cursor-pointer" role="alert">
+        <i class="fa-solid fa-triangle-exclamation mr-4"></i>
+        <p>{{ message }}</p>
+        {% if link %}
+            <a class="underline ml-2" href="{{link.url}}" hx-boost="false">{{link.text}}</a>
+        {% endif %}
+    </div>
+
+{% endmacro %}
+
+

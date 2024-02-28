@@ -1,0 +1,92 @@
+{% from 'components/tictactoe.html' import boardCell, customButton, indicator, animatePoints %}
+
+{# regular play and prevents user from overwriting a spot #}
+
+
+{% if text -%}
+    {{ boardCell(playable=false, text=text, as_user=as_user) }}
+
+{%- endif %}
+
+
+{% if cp_context -%}
+    {{ boardCell(playable=false, text=cp_context['text'], cell=cp_context['move'], swap_oob="outerHTML") }}
+{%- endif %} 
+
+
+
+
+{% if ended  -%}
+
+    {# set playable button #}
+    <span id="btn-container" hx-swap-oob="innerHTML" class="">
+        <span 
+        hx-get="{{ url_for('reset') }}"
+        hx-target="#board"
+        hx-swap="outerHTML"
+        >
+            {{customButton("Play again", classes="!w-fit", as_submit=false, icon_right="fa-solid fa-rotate-right") }}
+        </span>
+    </span>
+
+    {# make remaining cells unplayable #}
+    {% for cell in remaining_cells %}
+        {{ boardCell(playable=false, cell=cell, swap_oob="outerHTML") }} 
+    {% endfor %}
+
+    {# update scores #}
+    {# TODO: ADD animation for points and a draw couunt #}
+
+
+    {% if not loser %}
+    <h1 id="game-desc" 
+    class="text-white opacity-0 transition-opacity"
+    classes="add opacity-100:1s"
+    hx-swap-oob="true"
+    >
+        Draw!
+    </h1>  
+
+    <span id="draw-score" hx-swap-oob="outerHTML">{{ scores_context.get('draws') }}</span>
+
+    {{animatePoints('home', scores_context['points'], animated=true)}}
+
+    {% if mode == '2P' %}
+        {{animatePoints('away', scores_context['points'], animated=true)}}
+    {% endif %}
+
+    
+
+    {% elif  loser == current_user.id %}
+    <h1 id="game-desc" 
+        class="text-red-500"
+        classes="remove opacity-100 & add opacity-0, add opacity-100:1s"
+        hx-swap-oob="true"
+        >
+        {{ session['guest_uname'] if mode == "2P" else 'Computer' }} wins!
+        </h1>  
+        {% if mode == '2P' %}
+            {{ animatePoints('away', scores_context['points'], animated=true)}}
+        {% endif %}
+    <span id="away-score" hx-swap-oob="outerHTML">{{ scores_context.get('away') }}</span>
+    {% else %}
+        <h1 id="game-desc" 
+        class="text-green-500"
+        classes=""
+        hx-swap-oob="true"
+        >
+            {{ current_user.username }} wins!
+        </h1>  
+
+        <span id="home-score" hx-swap-oob="outerHTML">{{ scores_context.get('home')}}</span>
+        {{ animatePoints('home', scores_context['points'], animated=true) }}
+
+
+
+    {% endif %}
+
+
+{%- endif %}
+
+{# TODO: beter way to do this #}
+{{ indicator(as_user) }}

@@ -1,0 +1,32 @@
+{% macro modalBG(show, content=none, swap=false, back_to=none, title='Default', standalone=none) -%}
+    
+<div id="modal-bg"
+ hx-get="{{ url_for('close_modal') }}" hx-trigger="click" hx-target="this" hx-swap="outerHTML" 
+ {% if back_to -%} hx-replace-url='{{ back_to }}' {%- endif %}
+class="flex flex-col justify-center items-center h-screen w-screen bg-slate-200 absolute overflow-hidden
+backdrop-blur-xl top-0 border-outset {% if not show -%} hidden {%- endif %}" {% if swap -%}
+    hx-swap-oob="true"
+{%- endif %}>
+{% if content -%}
+  {{ modal(content, back_to, title) }}  
+{% elif standalone %}
+  {{ standalone }}
+{%- endif %}
+</div>
+{%- endmacro %}
+
+
+{% macro modal(content, back_to, title) -%}
+    <div class="modal bg-white" onclick="event.stopPropagation()">
+
+        <i hx-get="{{ url_for('close_modal') }}" hx-trigger="click" hx-target="#modal-bg" hx-swap="outerHTML" 
+        {% if back_to -%} hx-replace-url='{{ back_to }}' {%- endif %}
+         class="fa-solid fa-xmark absolute top-2 right-2 text-sm text-black rounded-[50%] w-8 h-8  z-40 flex items-center justify-center hover:bg-slate-200 cursor-pointer">
+        </i>
+
+        <h4 class="text-base font-bold text-black col-span-full mb-1 modal-header">
+            {{ title }}
+          </h4>
+        {{ content }}
+    </div>
+{%- endmacro %}

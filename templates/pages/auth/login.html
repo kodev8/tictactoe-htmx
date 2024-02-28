@@ -1,0 +1,46 @@
+{% from './components/forms.html' import customInput %} 
+{% from './components/tictactoe.html' import customButton %} 
+{% set noAuth = true %}
+{% extends 'templates/layout.html' %} 
+
+{% block page_content %}
+
+<div class="w-full h-full flex items-center justify-center flex-col gap-y-6">
+
+
+  <form
+    method="POST"
+    hx-push-url="false"
+    action="{{ url_for('login') }}"
+    hx-target="#messages"
+    hx-swap="innerHTML"
+    novalidate
+    class="grid gap-y-8 gap-x-2 w-[300px] bg-white border border-solid border-slate-300 shadow-sm rounded-xl p-6"
+  >
+    <h4 class="text-3xl text-black font-medium">
+      Sign In {% if guest %} (Guest) {% endif %}
+    </h4>
+
+    {% for field in form %} {{ customInput(field) }} {% endfor %}
+
+    {% if guest %}
+      <input type="hidden" name="guest" value="guest">
+    {% endif %}
+
+  </form>
+
+  <span class="bg-white px-4 text-xs text-slate-400 p-2 rounded sm"> New Player? <i class="animate-bounce fa-solid fa-arrow-down"></i> </span>
+  
+ <a href="{% if guest %} {{ url_for('register_guest') }} {% else %} {{ url_for('register') }} {% endif %}">
+
+  {{ customButton('Create Your Account Now', 
+                  color='bg-white', 
+                  hoverColor='bg-gray-100',
+                  classes='text-black border border-slate-200 shadow-sm' ) 
+    }}
+</a>
+
+</div>
+{% endblock page_content %}
+
+

@@ -1,0 +1,352 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+
+  html,
+  body {
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    min-height: 100%;
+    min-width: 100%;
+    overflow-x: hidden;
+    font-family: "Share Tech Mono", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  }
+
+}
+
+
+
+:root {
+  --bg:#142551; 
+  --nav-two-bg: #232f3e;
+  --nav-height: 4rem;
+  --shadow-color: #e3cf1a7c;
+  
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+
+/* SIDE NAV */
+#side-nav.closed,
+#side-x.closed {
+  transform: translateX(-350px);
+  transition:transform 0.5s ease-in
+}
+
+#side-nav, 
+#side-x {
+  transform: translateX(0);
+  transition:transform 0.3s ease-out
+}
+
+
+.gradient-overlay {
+  position: absolute;
+  bottom: -50px;
+  left: 0;
+  width: 100%;
+  height: 50px; /* Adjust the height of the gradient overlay as needed */
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgb(169, 169, 169));
+}
+
+
+/* modal ======================================================= */
+
+.modal {
+  min-width: 310px;
+  width: fit-content;
+  max-height: 80%;
+  /* padding: 2rem;
+  padding-bottom: 2rem; */
+  background-color: rgb(255, 255, 255);
+  border-radius: 5px;
+  border: solid 1px black;
+  box-shadow: 0px 5px 5px rgb(176, 174, 174);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-y: scroll;
+
+  /* scroll bar */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  animation: scaleAnimation 0.5s ease-in-out; /* Apply the animation */
+
+  border-color: rgb(140, 130, 115);
+  box-shadow: rgb(69, 75, 78) 0px 5px 5px;
+}
+
+
+
+/* Define the animation keyframes */
+@keyframes scaleAnimation {
+  0% {
+    transform: scale(0.2); /* Start small */
+  }
+  100% {
+    transform: scale(1); /* Finish at normal size */
+  }
+}
+
+.modal::-webkit-scrollbar {
+  display: none;
+}
+
+.modal-header,
+.modal .content
+{
+  padding: 1rem;
+}
+
+.modal-header {
+  background-color: #F0F2F2;;
+}
+/* 
+.modal-header {
+  text-align: center;
+  text-transform: capitalize;
+  position: relative;
+  margin: 20px 0;
+  color: white;
+}
+
+.modal-header::after {
+  content: "";
+  position: absolute;
+  align-self: flex-start;
+  width: 100%;
+  left: 0;
+  bottom: -0.5rem;
+  height: 0.1rem;
+  background-color: rgb(99, 91, 91); */
+/* } */
+
+#modal-bg {
+  background-color: var(--modal-bg-color);
+  height: 100vh;
+  width: 100%;
+  position: absolute;
+  backdrop-filter: blur(3px);
+  top: 0;
+  right: 0;
+  flex-direction: column;
+  padding: 0;
+  justify-content: center;
+  align-items: center;
+  border-width: 0;
+  z-index: 50;
+}
+
+/* inputs */
+
+
+.custom-input:focus ~ label,
+.custom-input:not(:placeholder-shown) ~ label,
+.custom-input[type="date"] ~ label {
+  transform: translateY(-60%) scale(0.8);
+  color: rgb(35, 41, 222);
+  left: 0px;
+  /* *** why is lables not alignting */
+  transition: transform 0.3s ease, left 0.3s ease;
+  padding-bottom: 5px;
+}
+
+.custom-input ~ label {
+  transition: transform 0.3s ease, left 0.3s ease;
+}
+
+
+
+.custom-input[type="date"] {
+  padding-right: 8px;
+}
+
+.custom-input ~ .eye-icon {
+  position: absolute;
+  align-self: center;
+  right: 15px;
+  border-radius: 10px;
+  color: #868e96;
+  cursor: pointer;
+  background-color: transparent;
+}
+
+.noti-close {
+  max-height: 0px !important;
+  transition: max-height 0.5s ease;
+}
+
+.noti-open {
+  max-height: 1200px !important;
+  transition: max-height 0.5s ease;
+}
+
+.pay-open {
+  max-height: 1200px !important;
+  transition: max-height 3s ease;
+}
+
+/* profile */
+.profile-bg {
+  background-size: cover;
+  background-position: center;
+}
+
+.tab-active {
+  font-weight: bolder;
+}
+
+.tab-active::after {
+  content: "";
+  height: 4px;
+  width: 100%;
+  position: absolute;
+  background-color: blue;
+  bottom: 0;
+}
+
+/* speech bubble */
+
+.speech-bubble {
+  --bbColor: white;
+  --bbArrowSize: 1rem;
+  --bbPadding: 4px;
+  background: var(--bbColor);
+  /* border-radius: 2rem; */
+  border: 1px solid black;
+  position: absolute;
+  /* bottom: 80%; */
+  font-size: small;
+  /* margin-top: var(--bbArrowSize); */
+}
+
+/* .speech-bubble.sb-outline::before {
+  content: "";
+  position: absolute;
+  background: rgb(0, 0, 0);
+  clip-path: polygon(0% 95%, 50% 0, 100% 95%);
+  --width: calc(var(--bbArrowSize) / 2 * 3);
+  height: var(--bbArrowSize);
+  width: var(--width);
+  bottom: 98%
+} */
+
+.speech-bubble::after {
+  content: "";
+  position: absolute;
+  background: rgb(255, 255, 255);
+  clip-path: polygon(5% 100%, 50% 5%, 95% 100%);
+  --width: calc(var(--bbArrowSize) / 2 * 3);
+  height: var(--bbArrowSize);
+  width: var(--width);
+  bottom: 98%
+
+}
+
+.sb-right::after {
+  left: calc(75% - var(--width) / 2);
+}
+
+.sb-center::before,
+.sb-center::after{
+  left: calc(50% - var(--width) / 2);
+
+}
+
+
+
+.loader {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: inline-block;
+  border-top: 4px solid #fff;
+  border-right: 4px solid transparent;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+.loader::after {
+  content: "";
+  box-sizing: border-box;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border-left: 4px solid #ff3d00;
+  border-bottom: 4px solid transparent;
+  animation: rotation 0.5s linear infinite reverse;
+}
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+select {
+  outline: none;
+}
+
+
+.loading:after {
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: bottom;
+  -webkit-animation: ellipsis steps(4,end) 900ms infinite;      
+  animation: ellipsis steps(4,end) 900ms infinite;
+  content: "\2026"; /* ascii code for the ellipsis character */
+  width: 0px;
+}
+
+@keyframes ellipsis {
+  to {
+    width: 1.25em;    
+  }
+}
+
+@-webkit-keyframes ellipsis {
+  to {
+    width: 1.25em;    
+  }
+}
+

@@ -1,0 +1,18 @@
+{% from './components/forms.html' import customInput %}
+{% from './components/tictactoe.html' import board %} 
+
+{% set noAuth = true %}
+{% extends 'templates/layout.html' %} 
+
+{% block page_content %}
+
+  <div class="h-full w-full flex flex-col items-center justify-center text-red-500 gap-y-8">
+
+    <span class="text-4xl font-bold">{{ message }}</span>
+    {% if sub_message %}
+      <a href="{{ url_for('index') }}" class="text-lg font-bold underline">{{ sub_message }}</a>
+    {% endif %}   
+     {{ board(as_code=code, board_color="bg-red-500") }}
+  </div>
+
+{% endblock page_content %}

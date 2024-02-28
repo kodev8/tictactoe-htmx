@@ -1,0 +1,57 @@
+{% from './components/forms.html' import customInput %} 
+{% extends "templates/layout.html" %}
+{% set noAuth = true %}
+{% block page_content %}
+
+
+<div class="w-full h-full flex items-center justify-center flex-col gap-y-6">
+
+        <form
+        hx-boost="true"
+        method="POST"
+        novalidate
+        action="{{ url_for('register') }}"
+        hx-target="#messages"
+        hx-swap="innerHTML"
+        class="grid sm:grid-cols-2 gap-y-8 gap-x-2 w-[300px] sm:w-[500px] bg-white border border-solid border-slate-300 shadow-sm rounded-xl p-6"
+        >
+            <h4 class="text-2xl text-black font-medium col-span-full">
+            Create {% if guest %} Guest {% endif %}Account 
+            </h4>
+
+            {% for field in form %} 
+                {% if field.type=='SubmitField' %}
+                    <span class="col-span-full">
+                    {{ customInput(field, field.id) }} 
+                    </span>
+                {%else%}
+                    {{ customInput(field, field.id in ['username','email', 'dob']) }} 
+
+                {% endif %}
+
+            {% endfor %}
+
+            {% if guest %}
+                <input type="hidden" name="guest" value="guest">
+            {% endif %}
+        </form>
+
+
+
+        <div class="p-4 bg-blue-300 rounded-md">
+
+            <span class="text-sm text-white">Already have an account?
+                <span class="text-blue-600">
+                    <a href="{% if guest %} {{ url_for('login_guest') }} {% else %} {{ url_for('login') }} {% endif %}">Sign in {% if guest %} as Guest{% endif %}</a>
+                    <i class="fa-solid fa-caret-right text-[10px]"></i>
+                </span>
+                </span>
+            
+        </div>
+    
+    
+
+    </div>
+
+    
+{% endblock page_content %}

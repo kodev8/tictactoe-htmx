@@ -1,0 +1,263 @@
+{% from 'components/tictactoe.html' import customButton, modeTab, profilePhoto %}
+{% from 'components/notifs.html' import oob_notif %}
+{% from 'components/forms.html' import genericModalForm %}
+{% from 'components/modal.html' import modalBG %}
+
+{% set title_text = "Profile" %}
+
+{# PRELOADING MODAL CONTEXTS #}
+
+{% set back_to = url_for('profile', username=user.username) %}
+{% if reset_context.get('active') %}
+
+    {% set resource = genericModalForm(
+      form=reset_context['form'], 
+      submit_text='Reset Password', 
+      submit_action=url_for('reset_password_request') 
+    )
+    %}
+
+    {% set modal = modalBG(
+      show=true, 
+      content=resource,
+      swap=false, 
+      title="Reset Password", 
+      back_to=back_to) 
+    %}
+
+{% elif photo_context.get('active') %}
+    {% set modal = modalBG(
+      show=true, 
+      standalone= profilePhoto(user),
+      swap=false, 
+      back_to=back_to)
+    %}
+
+{% elif email_context.get('active') %}
+
+  {% set resource = genericModalForm(
+    form=email_context['form'], 
+    submit_text='Update', 
+    submit_action=url_for('update_email_request')
+  )
+  %}
+
+    {% set modal = modalBG(
+      show=true, 
+      content=resource,
+      swap=false, 
+      title="Update Email",
+      back_to=back_to) 
+    %}
+
+{% elif username_context.get('active') %}
+
+    {% set resource = genericModalForm(
+      form=username_context['form'], 
+      submit_text='Update Username', 
+      submit_action=url_for('update_username_request')
+    )
+    %}
+  
+      {% set modal = modalBG(
+        show=true, 
+        content=resource,
+        swap=false, 
+        title="Update Username",
+        back_to=back_to) 
+      %}
+{% endif %}
+
+
+{# HTML STARTS HERE #}
+
+{% extends 'templates/layout.html' %}
+
+{% block page_content %}
+
+  {{ title(title_text) }}
+
+
+    <div id='profile-page' class="h-full w-full flex flex-col justify-center items-center ">
+
+
+
+      <div class="flex flex-col gap-y-8 justify-center items-center">
+
+        <div class="grid grid-cols-2 gap-7">
+
+        <!-- name -->
+          <span class="font-bold text-lg text-white self-center">{{ user.fname }} {{ user.lname }}</span>
+
+          <!-- profile photo -->
+
+          {% if not user.profile_pic %}
+
+                {% if user.id == current_user.id%}
+                    <form>
+
+                    {{ photo_context['form'].csrf_token() }}
+
+                  <label class="cursor-pointer">
+                  {% endif %}
+
+                    <div class="rounded-[50%] h-[100px] w-[100px] bg-black text-white  place-self-center flex items-center justify-center">
+                      <span class="font-medium text-lg">{{ user.fname[0] }} {{ user.lname[0] }}</span>
+                    </div>
+
+                    {% if user.id==current_user.id%}
+                      {{ photo_context['form'].photo( htmx_props={ 
+                        "hx-post":url_for('update_profile_pic'), 
+                        "hx-target-4*": "#messages", 
+                        "hx-swap":"outerHTML", 
+                        "hx-trigger": "change", 
+                        "hx-encoding": "multipart/form-data", 
+                         } ) 
+                        }}
+                    
+                </label>
+              </form>
+                  
+              {% endif %}
+
+          {% else %}
+
+            <div id="profile_photo"
+            class="relative rounded-[50%]">
+              <a 
+                hx-target="#modal-bg"
+                hx-swap="outerHTML" 
+                hx-select="#modal-bg"
+                href="{{ url_for('profile_photo', username=user.username)}}"
+              >
+                  <img
+                  class="rounded-[50%] h-[100px] w-[100px] object-cover  place-self-center flex items-center justify-center hover:brightness-[80%] transition-[filter] ease duration-300"
+                  src="{{ url_for('upload', filename=user.build_path('profile', 'profile.png')) }}"
+                  alt=""
+                  />
+              </a>
+              {% if user.id==current_user.id%}
+              
+              <form>
+                {{ photo_context['form'].csrf_token() }}
+
+                {{ photo_context['form'].photo(class="fa-solid fa-camera absolute z-10 left-[50%] -translate-x-[50%] bottom-0 
+                cursor-pointer text-blue-300 text-lg hover:text-green-500",
+                        htmx_props={ 
+                          "hx-post":url_for('update_profile_pic'), 
+                          "hx-target-4*": "#messages", 
+                          "hx-swap":"outerHTML", 
+                          "hx-trigger": "change", 
+                          "hx-encoding": "multipart/form-data", 
+                           } ) 
+                      }}
+                </form>
+              {% endif %}
+                
+            </div>
+
+          
+            
+          {% endif %}
+         
+        </div>
+
+        <!--profile updates  -->
+
+        {% set is_user = user.id == current_user.id %}
+
+        <div class="w-full grid grid-cols-[fit-content(250px)_auto] gap-7  
+        [&>*:nth-child(odd)]:place-self-center
+        [&>*:nth-child(even)]:text-slate-500 font-medium
+         bg-gray-100 text-sm p-3 rounded-lg ">
+
+         <span class="col-span-full pb-2 border-b border-b-slate-400">Account Details</span>
+
+          <div class="flex min-w-0  {% if not is_user %} col-span-full items-center justify-center w-full {% endif %}">
+            <i class="fa-solid fa-user mx-2"></i>
+            <p class="overflow-hidden text-ellipsis">{{ user.username }}</p>
+          </div>
+
+          {% if is_user %}
+            <a 
+            hx-target="#modal-bg"
+            hx-swap="outerHTML" 
+            hx-select="#modal-bg"
+            href="{{ url_for('update_username') }}" class="hover:underline text-blue-800">Update</a>
+          {% else %}
+
+          <span class="hidden"></span>
+          
+          {% endif %}
+
+
+          {% if user.id == current_user.id %}
+            <span class=""><i class="fa-solid fa-envelope mx-2"></i>{{ current_user.email }}</span>
+            <a 
+            hx-target="#modal-bg"
+            hx-swap="outerHTML" 
+            hx-select="#modal-bg"
+            href="{{ url_for('update_email') }}" class="hover:underline text-blue-800">Update</a>
+
+            <div class="flex  ">
+              <i class="fa-solid fa-lock mx-2"></i>
+              <span>
+                <p class="leading-[opx]">Password</p>
+                <p>••••••••</p>
+              </span>
+            </div>
+            <a 
+            hx-target="#modal-bg"
+            hx-swap="outerHTML" 
+            hx-select="#modal-bg"
+            href="{{ url_for('reset_password') }}" class="hover:underline text-blue-800 place-self-center">Update</a>
+          {% endif %}
+          <span class=""><i class="fa-solid fa-calendar mx-2"></i>Joined</span> 
+          <span>{{ user.user_since.strftime("%d %b, %Y") }}</span>
+
+        </div>
+        
+
+        <div id="stat-container" class="w-full bg-gray-100 text -sm p-3 rounded-lg grid gap-y-1 place-items-center"> 
+
+          <h3 class="pb-2 border-b border-b-slate-400">Stats</h3>
+
+              {{ modeTab(
+              url1=url_for('profile', username=user.username, mode='pve'), 
+              url2=url_for('profile', username=user.username, mode='pvp'),
+              active_classes='font-bold text-yellow-400 border-b border-b-blue-500',
+              target='#stat-container',
+              container_classes='mb-2',
+              mode=mode
+              ) }}
+
+            <div class="w-full grid grid-cols-2 gap-7 [&>*:nth-child(even)]:place-self-center">
+
+
+                <span class=" text-[#bfca18] font-medium"><i class="fa-solid fa-ranking-star mx-2"></i>Rank</span>
+                <span class="">{{ rank }}</span>
+
+                <span class="text-blue-400 font-medium"><i class="fa-solid fa-bullseye mx-2"></i>Points</span>
+                <span class="">{{ leaderboard.points }}</span>
+
+                  <span class="text-green-500 font-medium"><i class="fa-solid fa-trophy mx-2"></i>Wins</span>
+                  <span class="">{{ leaderboard.wins }}</span>
+
+                  <span class="text-gray-500 font-medium"><i class="fa-solid fa-minus mx-2"></i>Draws</span>
+                  <span>{{ leaderboard.draws }}</span>
+
+                  <span class="text-red-500 font-medium"><i class="fa-solid fa-square-xmark mx-2"></i>Losses</span>
+                  <span>{{ leaderboard.losses }}</span>
+
+            </div>
+
+
+        </div>
+
+    </div>
+    
+  
+{% endblock page_content %}
+
+
+  
