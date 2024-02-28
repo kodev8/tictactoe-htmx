@@ -1,0 +1,108 @@
+{% set title_text = "Leader Board" %}
+{% from 'components/tictactoe.html' import title, modeTab %}
+{% extends 'templates/layout.html' %}
+{% block page_content %}
+
+{# swap title in htmx #}
+{{ title(title_text) }}
+
+<div id="leaderboard-page" class="h-full w-full flex flex-col items-center pt-2 gap-y-6  pb-8">
+
+    <span class="text-3xl font-bold text-white "> Leader Board </span>
+
+    <div id="leaderboard-container" class="bg-white rounded-md">
+
+        {{ modeTab(
+                url1=url_for('leaderboard', mode='pve'), 
+                url2=url_for('leaderboard', mode='pvp'),
+                target='#leaderboard-container',
+                active_classes='border-b-4 border-b-green-500 font-bold',
+                mode=mode
+                ) }}
+        <div id="leaderboard" class="grid grid-cols-[auto_minmax(100px,200px)_auto_auto] sm:grid-cols-[auto_minmax(200px,300px)_auto_auto_auto] place-items-center gap-x-4 gap-y-2  text-white px-6 py-2 overflow-hidden  bg-black">
+
+            <span class="text-green-400 font-bold  ">Rank</span>
+            <span class="text-green-400 font-bold ">Username</span>
+            <span class="text-green-400  font-bold justify-self-start col-span-2 sm:col-span-3">Score</span>
+
+            {% set ns = namespace(found=false) %}
+
+            {% for rank, row in leaderboard %}
+
+                {% if row.user.id == current_user.id %}
+                    {# check for user  #}
+                    {% set ns.found=true %}
+                {% endif %}
+
+                <span class="{% if row.user.id == current_user.id %} text-yellow-400 {% endif %}">{{ rank }}</span>
+
+                <a href="{{ url_for('profile', username=row.user.username) }}" 
+                    hx-swap="multi:#right_nav,#btabs-nav,#page-content"
+                    title="{{ row.user.username }}'s Profile"
+                    class="grid grid-cols-[auto_1fr] min-w-0 gap-x-4 justify-self-start {% if row.user.id == current_user.id %} text-yellow-400 {% endif %} "> 
+                        {% if row.user.profile_pic %}
+                            <img
+                            class="rounded-[50%] h-[30px] w-[30px] object-cover"
+                            src="{{ url_for('upload', filename=row.user.build_path('profile', 'profile.png')) }}"
+                            alt=""
+                            />
+                        {% else %}
+                            <div class="rounded-[50%]  h-[30px] w-[30px] bg-white text-black h0  place-self-center flex items-center justify-center">
+                                <p class="font-medium text-lg">{{ row.user.fname[0] }}{{ row.user.lname[0] }}</p>
+                            </div>
+                        {% endif %}
+                        <p class="overflow-hidden text-ellipsis hover:underline hover:text-green-500">{{ row.user.username }}</p>
+
+                </a>
+              
+                <span class="{% if row.user.id == current_user.id %} text-yellow-400 {% endif %}">{{ row.points }}</span>
+                <i onclick="toggleStats(this)"
+                class="fa-solid fa-chevron-down sm:rotate-[-90deg] text-white font-bold text-base cursor-pointer hover:text-green-400 transition-transform duration-[400ms] {% if row.user.id == current_user.id %} text-yellow-400 {% endif %}" title="View Game Stats"></i>
+
+                <div class="stat-container col-span-full sm:col-span-1 grid sm:max-w-0 max-h-0 grid-cols-3 gap-2 overflow-x-hidden place-items-center text-sm transiton-[max-height, max-width] duration-[300ms] ease-in-out {% if row.user.id == current_user.id %} text-yellow-400 {% endif %}">
+                    <span>Wins</span>
+                    <span>Draws</span>
+                    <span>Losses</span>
+
+                    <span>{{ row.wins }}</span>
+                    <span>{{ row.draws }}</span>    
+                    <span>{{ row.losses }}</span>
+
+                </div>
+
+            {% endfor %}
+
+            {# if current user is not in the top 20, still show their rank #}
+            {% if not ns.found %}
+                {% set user_leaderboard = current_user.pve_leaderboard if mode == 'pve' else current_user.pvp_leaderboard %}
+                <span class="col-span-full">...</span>
+                <span class="text-yellow-400">{{ user_leaderboard.get_user_rank()}}</span>
+                <span class="text-yellow-400">
+                    <a  href="{{ url_for('profile', username= current_user.username) }}" 
+                        hx-swap="multi:#page-content:beforeend,#btabs-nav,#right_nav"
+                        class="hover:underline hover:text-green-500 ">
+                        {{ current_user.username }}
+                    </a>
+                </span>
+                <span class=" text-yellow-400 ">{{ user_leaderboard.points }}</span>
+                <i onclick="toggleStats(this)"
+                class="fa-solid fa-chevron-down sm:rotate-[-90deg]  font-bold text-base cursor-pointer hover:text-green-400 transition-transform duration-[400ms] text-yellow-400 " title="View Game Stats"></i>
+                
+                <div class="stat-container col-span-full sm:col-span-1 grid sm:max-w-0 max-h-0 grid-cols-3 gap-2 overflow-x-hidden place-items-center text-sm transiton-[max-height, max-width] duration-[300ms] ease-in-out  text-yellow-400">
+                    <span>Wins</span>
+                    <span>Draws</span>
+                    <span>Losses</span>
+
+                    <span>{{ user_leaderboard.wins }}</span>
+                    <span>{{ user_leaderboard.draws }}</span>    
+                    <span>{{ user_leaderboard.losses }}</span>
+
+                </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+</div>
+    
+{% endblock page_content %}

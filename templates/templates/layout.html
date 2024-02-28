@@ -1,0 +1,106 @@
+
+{% extends 'templates/base.html' %} 
+
+  {% block content %}
+
+  <div id="main" class="w-full h-full grid grid-cols-1 grid-rows-[auto_1fr]">
+   
+    <nav class="w-full relative top-0 text-white flex items-stretch px-8">
+      <!-- logo -->
+      <a href="{{ url_for('index', ref='logo') }}" 
+      hx-target="body"
+      class=" flex items-center justify-center cursor-pointer 
+       py-3 px-2 gap-x-4{% if not noAuth %} sm:mr-auto {% else %} {% endif %}">
+        <img src="{{ url_for('static', filename='assets/favicon.ico') }}" class="aspect-auto h-[50px]" alt="">
+        <span>Tic Tac Toe</span>
+      </a>
+
+
+      {# noAuth Layout #}
+      {% if not noAuth %}
+
+
+        {% if current_user.is_authenticated %}
+
+            <div id="right_nav" class="hidden gap-x-6 sm:flex items-stretch">
+
+                <a href="{{ url_for('leaderboard') }}" 
+                id ="nav_leaderboard"
+                hx-swap="multi:#page-content,#right_nav,#btabs-nav"
+                class="flex items-center cursor-pointer {% if request.endpoint == 'leaderboard' %} text-blue-300 {% endif %}" 
+                > Leaderboard</a>
+
+                <a href="{{ url_for('profile', username=current_user.username) }}"
+                id="nav_profile"
+                hx-swap="multi:#page-content,#right_nav,#btabs-nav"
+                class="flex items-center cursor-pointer {% if request.endpoint == 'profile' and is_user %} text-blue-300 {% endif %}"
+                > Profile </a>
+
+                <form action="{{ url_for('logout') }}" method="POST" class="flex items-center cursor-pointer">
+                  <button> Sign out </span>
+                </form>
+              </div>
+
+
+        {% else %}
+
+          <a href="{{ url_for('login') }}" 
+          id="signin"
+          hx-target="#page-content" hx-swap="outerHTML show:window:top" hx-select="#page-content"
+          class="flex items-center cursor-pointer ml-auto"> Sign In </a>
+
+        {% endif %}
+
+      {% endif %}
+
+    </nav>    
+    
+    <div id="btabs-nav" class="flex sm:hidden py-3 fixed bottom-0 z-20 bg-black text-white text-xl w-full">
+
+      <a href="{{ url_for('index') }}"
+      hx-swap="multi:#btabs-nav,#page-content,#right_nav"
+      class="flex flex-col flex-1 justify-center items-center cursor-pointer transition-transform duration-500 {% if request.endpoint == 'index' %} text-blue-300 scale-110 {% endif %} "
+      >  
+      <i class="fa-solid fa-house"></i> 
+      {% if request.endpoint == 'index' %} <span class="text-xs">Home</span> {% endif %}
+      </a>
+
+      {% if current_user.is_authenticated %}
+        <a 
+          href="{{ url_for('profile', username=current_user.username) }}"
+          hx-swap="multi:#btabs-nav,#page-content,#right_nav"
+          class="flex flex-col flex-1 justify-center items-center cursor-pointer  transition-transform duration-500 {% if request.endpoint == 'profile' and is_user %} text-blue-300 scale-110 {% endif %}"
+          > 
+          <i class="fa-solid fa-user"></i> 
+          {% if request.endpoint == 'profile' and is_user %} <span class="text-xs">Profile</span> {% endif %}
+
+        </a>  
+
+        <a href="{{ url_for('leaderboard') }}" 
+        hx-swap="multi:#btabs-nav,#page-content,#right_nav"
+        class="flex flex-col flex-1 justify-center items-center cursor-pointer transition-transform duration-500  {% if request.endpoint == 'leaderboard' %} text-blue-300 scale-110{% endif %}" 
+        > 
+        <i class="fa-solid fa-ranking-star"></i>
+        {% if request.endpoint == 'leaderboard' %} <span class="text-xs">Leaderboard</span> {% endif %}
+        </a>
+
+      {% endif %}
+
+    </div>
+
+
+    <div id="page-content" class="w-full h-full pb-16 sm:pb-4 bg-[var(--bg)] relative">
+
+      {% block page_content -%}
+      {%- endblock page_content %}
+
+    </div>
+  <!-- end page content -->    
+   
+  {# workaround to remove signin for now #}>
+  <span id="signin" hx-swap-oob="true"></span>
+</div>
+{% endblock content %}
+
+
+

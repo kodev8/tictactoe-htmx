@@ -1,0 +1,85 @@
+{% from 'components/tictactoe.html' import customButton, board, indicator, animatePoints %}
+
+{% extends 'templates/layout.html' %}
+
+{% block page_content %}
+
+    <div class="text-center text-2xl font-extrabold mt-8 mb-3">
+        <h1 id="game-desc" class="loading text-yellow-500 opacity-100 transition-opacity">Game Time</h1>
+    </div>
+
+    <div class="h-full flex flex-col gap-y-8 "  hx-vals='{"mode": "{{ mode }}"}'>
+
+        <div class='grid place-content-center gap-y-8 sm:gap-x-0 grid-cols-[20px_auto] sm:grid-cols-3 relative'>
+            
+
+            <div id="indicator-container" class="sm:w-full
+            sm:col-span-full row-span-3 flex place-items-center 
+            relative pr-12">
+                {{ indicator(0) }}
+            </div>
+    
+
+            <div id="home-container" class=" relative grid grid-rows-[repeat(3,2.5rem)] place-items-center text-green-400 text-lg font-bold">
+                {{ animatePoints('home') }}
+                <span id="home-user" class=""> {{ current_user.username }} ({{ user_rank }}) </span>
+                <span id="home-score">0</span>
+                <span  
+                hx-post="{{ url_for('forfeit') }}" 
+                hx-confirm="{{ current_user.username }}... Are you sure you want to forfeit this match?"
+                hx-vals='{"forfeit":"home"}' 
+                hx-target="#board"
+                hx-swap="outerHTML"
+                >
+                    {{ customButton("Forfeit", color="bg-black", hoverColor="hover:bg-slate-700", classes="!w-fit text-white forfeit disbaled:bg-slate-100", as_submit=false, icon_right="fa-solid fa-flag text-red-500") }}
+                </span>
+            </div>
+
+            <div id="board-container" class="gird w-fit justify-self-center ">
+                {{ board(playable=true) }}
+            </div>
+
+
+            <div id="away-container" class="relative grid grid-rows-[repeat(3,2.5rem)] place-items-center text-white font-bold text-lg">
+                {{ animatePoints('away') }}
+                {% if mode == "2P" and guestObj %}
+                    <div class="relative">
+                        <span onclick="dth(event, this.nextElementSibling)" class="hover:underline cursor-pointer" id="away_user">{{ guestObj.username }} ({{ guest_rank }})</span>
+                        <div class="absolute flex flex-col text-xs top-[50%] left-[90%] w-full invisible rounded-md  z-10">
+                            <span class="animate-ping absolute inline-flex h-4 w-4 rounded-full bg-sky-400 opacity-75"></span>
+                            <span  class="p-2 bg-blue-500 hover:bg-blue-300 rounded-t-md">
+                                <a href="{{ url_for('profile', username=guestObj.username) }}"
+                                hx-target="#page-content" hx-select="#page-content" hx-swap="innerHTML show:window:top">View Profile</a>
+                            </span> 
+                            <span hx-post="{{ url_for('remove_guest') }}" class="rounded-b-md p-2 bg-blue-500 hover:bg-blue-300 cursor-pointer">Sign out Guset</span>
+                        </div>
+                    </div>
+                {% else %}
+                    <span>Computer ({{ level_text }})</span>
+                {% endif %}
+
+                <span id="away-score">0</span>
+
+                {% if mode == "2P"  and guestObj %}
+                    <span 
+                    hx-post="{{ url_for('forfeit') }}" 
+                    hx-confirm="{{ guestObj.username }}... Are you sure you want to forfeit this match?"
+                    hx-true-confirm
+                    hx-vals='{"forfeit":"away"}'
+                    hx-target="#board"
+                    hx-swap="outerHTML">
+                        {{ customButton("Forfeit", classes="!w-fit forfeit disbaled:bg-slate-100", as_submit=false, icon_right="fa-solid fa-flag text-red-500") }}
+                    </span>
+                {% else %}
+                <span></span>
+                {% endif %}
+                    <p class="absolute text-sm text-yellow-300 right-4 bottom-0">Draw Count:<span id="draw-score">0</span>
+            </div>
+            <span class="sm:hidden"></span>
+            <div id="btn-container" class="sm:col-span-full  sm:mt-6 justify-self-center "></div>
+        </div>  
+
+
+    </div>
+{% endblock page_content %}
+

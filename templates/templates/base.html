@@ -1,0 +1,118 @@
+{% from './components/modal.html' import modalBG %}
+{% from './components/notifs.html' import notif %}
+{% from 'components/tictactoe.html' import title %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- icon -->
+        <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon.ico') }}">
+
+        <!-- tailwind  + font-awesome -->
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/styles.css') }}"></link>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+
+        <!-- htmx -->
+        <script src="https://unpkg.com/htmx.org@1.9.8" integrity="sha384-rgjA7mptc2ETQqXoYC3/zJvkU7K/aP44Y+z7xQuJiVnB/422P/Ak+F/AqFR7E4Wr" crossorigin="anonymous"></script>
+        <script src="https://unpkg.com/htmx.org/dist/ext/class-tools.js"></script>
+        <script src="https://unpkg.com/htmx.org/dist/ext/response-targets.js"></script>
+        <script src="https://unpkg.com/htmx.org/dist/ext/multi-swap.js"></script>
+        
+
+        <!-- other js -->
+        <script type="text/javascript" src="{{url_for('static', filename='scripts/main.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='scripts/defer.js')}}" defer></script>
+
+        <!-- fonts -->
+        <link href='https://fonts.googleapis.com/css?family=Share Tech Mono' rel='stylesheet'>
+        
+
+        {{ title(title_text) }}
+        
+    </head>
+
+    <body hx-boost="true" hx-ext="multi-swap,response-targets,class-tools" class="bg-[var(--bg)]">
+
+        <div id="messages"  class="fixed w-full z-[70]"> 
+            {% with messages = get_flashed_messages(with_categories=true) -%}
+                {% if messages -%}
+                    {% for category, message in messages -%}
+                        {{ notif(message, category) }}
+                    {%- endfor %}
+                {%- endif %}
+            {%- endwith %}
+        </div>
+
+
+        {% if modal %}
+            {{ modal }}
+        {% else %}
+         {{ modalBG(false) }}
+        {% endif %}
+
+        <div class="relative h-full w-full ">
+
+            {% block content %}
+
+
+            {% endblock %}
+        </div>
+
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+ 
+
+            // htmx.config.globalViewTransitions = true
+
+            document.body.addEventListener("drawLine", function(evt) {
+                drawLine(evt.detail.orientation, evt.detail.start, evt.detail.end);
+            });
+
+            document.body.addEventListener("blockButtons", function(evt) {
+                blockButtons(evt.detail.cls, evt.detail.blocked);
+            });
+
+            document.addEventListener('initInputs', handleCustomInputs)
+
+            
+            // htmx.logAll();
+    //         htmx.on("htmx:afterRequest", function(evt) {
+    //     console.log("EVT OBJ: ", evt)
+    //     console.log("The element that dispatched the request: ", evt.detail.elt);
+    //     console.log("The XMLHttpRequest: ", evt.detail.xhr);
+    //     console.log("The target of the request: ", evt.detail.target);
+    //     console.log("The configuration of the AJAX request: ", evt.detail.requestConfig);
+    //     console.log("The event that triggered the request: ", evt.detail.requestConfig.triggeringEvent);
+    //     console.log("True if the response has a 20x status code or is marked detail.isError = false in the htmx:beforeSwap event, else false: ", evt.detail.successful);
+    //     console.log("true if the response does not have a 20x status code or is marked detail.isError = true in the htmx:beforeSwap event, else false: ", evt.detail.failed);
+    //     console.log('BREAKE')
+    //     console.log(' ')
+    // });
+
+    
+        htmx.on("htmx:confirm", function(evt) {
+
+               if (evt.detail.question) {
+                evt.preventDefault()
+                event.stopPropagation()
+                Swal.fire({
+                    text: evt.detail.question,
+                    showDenyButton: true,
+                    confirmButtonText: "Confirm Forfeit",
+                    denyButtonText: `Cancel`,
+                    icon:"question",
+                })
+                .then((result) => {
+                    if(result.isConfirmed) evt.detail.issueRequest(true)
+                })
+
+                }
+            })
+
+        </script>
+    </body>
+</html>

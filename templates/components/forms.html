@@ -1,0 +1,108 @@
+{% from './components/tictactoe.html' import customButton %}
+
+
+<!-- INLINE ERROR -->
+{% macro inlineError(fieldID, text, swap=false, icon=false) -%}
+  <span id="{{ fieldID }}-error" {% if swap %} hx-swap-oob="outerHTML" {% endif %} class="inline-error flex items-center top-[100%] text-red-500 font-medium text-xs text-justify"> 
+  {% if icon %}
+    <i class="fa-solid fa-circle-exclamation mr-1"></i>
+  {% endif %}
+  {{ text }}
+</span>
+{%- endmacro %}
+
+<!-- CUSTOM INPUT -->
+{% macro customInput(field, span_full=false) -%} 
+
+  {% if field.type == 'CSRFTokenField' %} 
+
+    {{ field }} 
+    
+    {% if field.errors %}
+      <div>You have submitted an invalid CSRF token</div>
+    {% endif %} 
+    
+  {% elif field.type == 'HiddenField' %}
+
+     {{ field }} 
+
+  {% elif field.type == 'SubmitField' %}
+
+    {{ customButton(field.label.text, as_submit=true) }}
+
+  {% else %} 
+
+    {% set classes = "custom-input w-full h-full outline-none border-none pl-2" %} 
+    {% set labelClasses = "absolute left-2 text-sm" %} 
+
+    {% if field.type == 'TextAreaField' %} 
+      {% set classes = classes + " resize-none no-scrollbar p-4" %} 
+      {% set divClasses = "min-h-[100px]" %} {% set labelClasses = labelClasses + " top-3" %}
+    {% endif %}
+
+    
+      <div class="relative custom-input-group  {% if span_full %} col-span-full {% endif %}">
+
+        <div class="relative {{ divClasses }} flex items-center h-12 rounded-lg border bg-transparent text-sm outline-none border-gray-200 overflow-hidden">
+          
+          {{ field(class=classes , placeholder="", autocomplete="off")}} 
+          {{ field.label(class=labelClasses)}} 
+          
+          {% if field.type == 'PasswordField' %}
+
+            <i class="fa-regular fa-eye-slash eye-icon"></i>
+          {% endif %}
+
+          {% if field.type == 'TextAreaField' %}
+
+            <div class="absolute bottom-2 right-2">{{ textCount(field, 150) }}</div>
+
+          {% endif %}
+          
+        </div>
+
+      {{ inlineError(field.id) }}
+      </div>
+
+  {% endif %} 
+{%- endmacro %}
+
+
+<!-- GENERIC MODAL FORM used for reset passsword, update email -->
+{% macro genericModalForm(form, submit_text, submit_action) -%}
+  <form 
+  novalidate
+  action="{{ submit_action }}"
+  method="POST"
+  hx-target="#messages"
+  hx-swap="innerHTML"
+  class="content">
+
+    <div class="grid sm:grid-cols-1 gap-y-4 gap-x-2 p-4 rounded-md">
+
+    {% for field in form -%} 
+      {{ customInput(field) }}
+    {% endfor -%}
+    </div>
+
+  </form>
+
+  <script>
+    handleCustomInputs()
+  </script>
+
+{%- endmacro %}
+
+
+<!-- TEXT COUT FOR TEXT AREAS -->
+{% macro textCount(field, max) -%}
+  <span class="text-xs text-slate-400 flex"><span id="count">{% if field.data %}
+    {{ field.data | length }} {%else%} 0
+  {% endif %}</span>/{{ max }}</span>
+
+  <script>
+    var max_value = parseInt("{{ max }}");
+    updateLength(max_value);
+  </script>
+{%- endmacro %}
+

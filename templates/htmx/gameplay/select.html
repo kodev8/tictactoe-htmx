@@ -1,0 +1,23 @@
+{% from 'components/tictactoe.html' import customButton %}
+
+
+{% if mode %}
+    {{ customButton( mode, classes="!w-fit", as_submit=false) }}
+    <input type="hidden" name="mode" value="{{ mode }}">
+
+    {% if mode == "2P" %}
+        <span id="level-btn" hx-swap-oob="innerHTML"></span>
+    {% else %}
+        <span id="level-btn" hx-swap-oob="innerHTML">
+            {{ customButton(level_context['text'], classes="!w-fit", as_submit=false) }}
+            <input type="hidden" name="level" value="{{level_context['level']}}">
+        </span>
+    {% endif %}
+{% endif %}
+
+
+{% if level_context and level_context['level_only'] %}
+    {{ customButton(level_context['text'], classes="!w-fit", as_submit=false) }}
+    <input type="hidden" name="level" value="{{level_context['level']}}">
+{% endif %}
+

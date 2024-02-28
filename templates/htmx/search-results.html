@@ -1,0 +1,14 @@
+{% from './components/amazon.html' import searchProducts %}
+
+{% if not results %}
+
+<div class="w-full flex text-center py-2 font-bold"> No results </div>
+
+{% else %}
+
+    {% for product in results %}
+        {{searchProducts(product)}}
+    {% endfor %}
+   
+        
+{% endif %}
